@@ -47,11 +47,17 @@ body {
 }
 </style>
 
-<script setup>
+<script>
 import { useAuthStore } from '@/stores/auth'
-
-const auth = useAuthStore()
-
-console.log(auth)
-
+export default {
+    setup() {
+        const auth = useAuthStore()
+        return {
+            auth,
+        };
+    },
+    async mounted() {
+        await this.auth.verify()
+    }
+}
 </script>

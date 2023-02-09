@@ -1,10 +1,24 @@
 import { defineStore } from 'pinia'
 
+function decodeJWT(token) {
+    const [headerEncoded, payloadEncoded, signatureEncoded] = token.split(".");
+  
+    // Base64Url decode the header and payload
+    const header = JSON.parse(Buffer.from(headerEncoded, 'base64').toString());
+    const payload = JSON.parse(Buffer.from(payloadEncoded, 'base64').toString());
+  
+    // Verify the signature
+    // ...
+  
+    return { header, payload };
+  }
+
 export const useAuthStore = defineStore('auth', {
 
     state: () => ({
         user: null,
         token: null,
+        expiry: null
     }),
 
     getters: {
@@ -21,8 +35,9 @@ export const useAuthStore = defineStore('auth', {
             })
             const data = await response.json()
             if (data.status === 200) {
-                this.user = data.user.username
+                this.user = data.user
                 this.token = data.user.accessToken
+                this.expiry = data.user.expiresIn
             }
             // console.log(data)
             return data
@@ -34,8 +49,9 @@ export const useAuthStore = defineStore('auth', {
             })
             const data = await response.json()
             if (data.status === 200) {
-                this.user = data.user.username
+                this.user = data.user
                 this.token = data.user.accessToken
+                this.expiry = data.user.expiresIn
                 console.log('registered', data)
             }
             // console.log(data, this.user, this.token)
@@ -43,26 +59,38 @@ export const useAuthStore = defineStore('auth', {
         },
 
         async verify() {
-            const response = await fetch(`http://localhost:4000/verify`, {
-                method: 'get',
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            })
-            if (response.status == 403) {
+
+            // turn expireIn into unix time using date.now()
+
+            console.log(Math.floor(Date.now() / 1000), this.expiry)
+
+            if (this.expiry < Math.floor(Date.now() / 1000)) {
                 this.user = null
                 this.token = null
                 console.log('token expired')
                 return false
             }
-            const data = await response.json()
-            if(data.status != 200) {
-                this.user = null
-                this.token = null
-                console.log('not verified')
-                return false
-            }
-            return true
+
+            // const response = await fetch(`http://localhost:4000/verify`, {
+            //     method: 'get',
+            //     headers: {
+            //         'Authorization': `Bearer ${this.token}`
+            //     }
+            // })
+            // if (response.status == 403) {
+            //     this.user = null
+            //     this.token = null
+            //     console.log('token expired')
+            //     return false
+            // }
+            // const data = await response.json()
+            // if(data.status != 200) {
+            //     this.user = null
+            //     this.token = null
+            //     console.log('not verified')
+            //     return false
+            // }
+            // return true
 
         },
 

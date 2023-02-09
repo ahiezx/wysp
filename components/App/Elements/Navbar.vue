@@ -2,12 +2,9 @@
     <div class="navbar">
         <div class="navbar-container container mx-auto w-1/2 p-2 flex justify-between items-center">
             <div class="logo font-garet-heavy text-2xl"><router-link to="/app">WYSP</router-link></div>
-            <div class="app-search">
-                <!-- search input with search icon from fontawesome using <i></i> -->
-                <input type="text" placeholder="Search" />
-                <i class="fas fa-search"></i>
+            
+            <AppComponentsSearch></AppComponentsSearch>
 
-            </div>
             <div class="menu">
                 <ul class="flex">
                     <router-link to="/app"><li class="mr-2"><i class="fas fa-home text-xl"></i></li></router-link>
@@ -17,8 +14,8 @@
                     <!-- <img src="https://picsum.photos/32/32" alt="Profile"> -->
                     <!-- image dropdown using tailwind -->
                     <li class="relative">
-                        <img class="w-8 h-8 rounded-full hover:cursor-pointer" src="https://picsum.photos/32/32" alt="Profile" @click="showDropDown = !showDropDown">
-                        <div class="absolute right-0 w-40 bg-white shadow-lg rounded-lg py-2 mt-2 nav-dropdown" v-if="showDropDown">
+                        <img class="w-8 h-8 rounded-full hover:cursor-pointer" src="https://picsum.photos/32/32" alt="Profile" @click.prevent="toggleDropdown">
+                        <div class="absolute right-0 w-40 bg-white shadow-lg rounded-lg py-2 mt-2 nav-dropdown" :class="{'hidden': !state}">
                             <router-link to="/app/account" class="block px-4 py-2 account-link text-neutral-600 text-sm hover:text-black">My Account</router-link>
                             <a href="#" class="block px-4 py-2 account-link text-neutral-600 text-sm hover:text-black">Notifications</a>
                             <a href="#" class="block px-4 py-2 account-link text-neutral-600 text-sm hover:text-black">Settings</a>
@@ -36,9 +33,25 @@ import { useAuthStore } from '@/stores/auth'
 export default {
     data() {
         return {
-            showDropDown: false
+            state: false
         }
     },
+    methods: {
+    toggleDropdown (e) {
+      this.state = !this.state
+    },
+    close (e) {
+      if (!this.$el.contains(e.target)) {
+        this.state = false
+      }
+    }
+  },
+  mounted () {
+    document.addEventListener('click', this.close)
+  },
+  beforeDestroy () {
+    document.removeEventListener('click',this.close)
+  },  
     setup() {
         const auth = useAuthStore()
         return {

@@ -60,7 +60,7 @@
             <div class="sidebar-profile flex items-center justify-between">
                 <div class="flex items-center text-black font-bold text-sm">
                     <img src="https://picsum.photos/50/50" alt="Story" class="element-story">
-                    <p>Stokleyy</p>
+                    <p>{{ auth.user.username }}</p>
                 </div>
                 <a href="#" class="text-blue-400 font-semibold text-xs">Switch</a>
             </div>
@@ -155,7 +155,19 @@
 
 <!-- Layout: app.vue -->
 <script>
+import { useAuthStore } from '@/stores/auth'
+
 definePageMeta({
   layout: "app",
 });
+
+export default {
+  setup() {
+    const auth = useAuthStore()
+    return {
+      auth,
+    };
+  }
+};
+
 </script>
