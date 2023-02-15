@@ -26,12 +26,14 @@
                             </div>
                         </div>
 
-                        <button class="text-neutral-800 text-xs pl-2 pr-2 rounded-sm" style="border: 1px solid lightgray;box-shadow:0px 0px 2px black;">Following</button>
+                        <button class="text-neutral-800 text-xs pl-2 pr-2 rounded-sm"
+                            style="border: 1px solid lightgray;box-shadow:0px 0px 2px black;"
+                            @click="unfollowItem(mutual)">Following</button>
 
                     </div>
-                    
-                    <div class="account-modal-list-item flex justify-between mx-auto mt-3"
-                        v-for="follower in followers" v-bind:key="follower">
+
+                    <div class="account-modal-list-item flex justify-between mx-auto mt-3" v-for="follower in followers"
+                        v-bind:key="follower">
 
                         <div class="account-modal-list-item-info flex items-center">
                             <div class="account-modal-list-item-image">
@@ -44,7 +46,8 @@
                             </div>
                         </div>
 
-                        <button class="text-blue-500">Follow</button>
+                        <button class="text-blue-500" @click="followItem(follower)" v-if="auth.user.id != follower.id">Follow</button>
+                        
 
                     </div>
                 </div>
@@ -78,10 +81,11 @@
                             </div>
                         </div>
 
-                        <button class="text-neutral-800 text-xs pl-2 pr-2 rounded-sm" style="border: 1px solid lightgray;box-shadow:0px 0px 2px black;">Following</button>
+                        <button class="text-neutral-800 text-xs pl-2 pr-2 rounded-sm"
+                            style="border: 1px solid lightgray;box-shadow:0px 0px 2px black;" @click="unfollowItem(mutual)">Following</button>
 
                     </div>
-                    
+
                     <div class="account-modal-list-item flex justify-between mx-auto mt-3"
                         v-for="following in following" v-bind:key="following">
 
@@ -96,7 +100,7 @@
                             </div>
                         </div>
 
-                        <button class="text-blue-500">Follow</button>
+                        <button class="text-blue-500" @click="followItem(following)" v-if="auth.user.id != following.id">Follow</button>
 
                     </div>
                 </div>
@@ -113,7 +117,7 @@
                 <div class="username-options flex items-center">
                     <h1 class="text-xl">{{ user.username }}</h1>
                     <div v-if="auth.user.username == user.username">
-                        <button style="border:1px solid #ccc;border-radius: 3px;" class="p-1 ml-4">Edit profile</button>
+                        <router-link :to="`/app/editprofile`" style="border:1px solid #ccc;border-radius: 3px;" class="p-1 ml-4">Edit profile</router-link>
                         <!-- Cog icon -->
                         <i class="fas fa-cog ml-2"></i>
                     </div>
@@ -250,6 +254,68 @@ export default {
                     resolve();
                 }, 250);
             });
+
+        },
+        async followItem(user) {
+
+            const token = this.auth.user.accessToken;
+
+            await new Promise((resolve) => {
+                setTimeout(async () => {
+                    const res = await fetch(`http://localhost:4000/users/${user.id}/follow`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const data = await res.json();
+
+                    if (data.status === 200) {
+                        if (this.modalFollowers) {
+                            this.followers = this.followers.filter((item) => item.id !== user.id);
+                            this.mutualFollowers.push(user);
+                        } else {
+                            this.following = this.following.filter((item) => item.id !== user.id);
+                            this.mutualFollowing.push(user);
+                        }
+                    }
+                    console.log(data);
+                    resolve();
+                }, 250);
+            })
+            
+        },
+        async unfollowItem(user) {
+
+            const token = this.auth.user.accessToken;
+
+            await new Promise((resolve) => {
+                setTimeout(async () => {
+                    const res = await fetch(`http://localhost:4000/users/${user.id}/follow`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const data = await res.json();
+
+                    if (data.status === 200) {
+                        if (this.modalFollowers) {
+                            this.mutualFollowers = this.mutualFollowers.filter((item) => item.id !== user.id);
+                            this.followers.push(user);
+                        } else {
+                            this.mutualFollowing = this.mutualFollowing.filter((item) => item.id !== user.id);
+                            this.following.push(user);
+                        }
+                    }
+                    console.log(data);
+                    resolve();
+                }, 250);
+            })
 
         },
         async getFollowers() {

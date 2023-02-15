@@ -16,7 +16,7 @@
                     <li class="relative">
                         <img class="w-8 h-8 rounded-full hover:cursor-pointer" src="https://picsum.photos/32/32" alt="Profile" @click.prevent="toggleDropdown">
                         <div class="absolute right-0 w-40 bg-white shadow-lg rounded-lg py-2 mt-2 nav-dropdown" :class="{'hidden': !state}">
-                            <router-link to="/app/account" class="block px-4 py-2 account-link text-neutral-600 text-sm hover:text-black">My Account</router-link>
+                            <router-link :to="`/app/user/${auth.user.username}`" class="block px-4 py-2 account-link text-neutral-600 text-sm hover:text-black">My Account</router-link>
                             <a href="#" class="block px-4 py-2 account-link text-neutral-600 text-sm hover:text-black">Notifications</a>
                             <a href="#" class="block px-4 py-2 account-link text-neutral-600 text-sm hover:text-black">Settings</a>
                             <button @click="auth.logout()" class="block px-4 py-2 account-link text-red-700 text-sm hover:text-red-500">Sign Out</button>
